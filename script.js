@@ -23,6 +23,10 @@ const board_border = 'black';
 const snake_col = 'lightblue';
 const snake_border = 'darkblue';
 
+let dx = 10;
+let dy = 0;
+
+
 
 function clearCanvas() {
 
@@ -50,8 +54,26 @@ function drawSnake() {
     snake.forEach(drawSnakePart)
 }
 
-function main() {
-    clearCanvas();
-    drawSnake();
+
+function moveSnake() {
+    const head = {
+        x: snake[0].x + dx,
+        y: snake[0].y + dy
+    }
+    snake.unshift(head);
+    snake.pop();
 }
+
+function main() {
+    setTimeout(function onTick() {
+        clearCanvas();
+        moveSnake();
+        drawSnake();
+        // call main again so to keep being called by itself forever or until the game ends - a condition I'll write later;
+        main();
+
+    }, 100)
+}
+
+
 main();
