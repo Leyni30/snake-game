@@ -28,8 +28,11 @@ const snake_border = 'darkblue';
 // I set the colors of the background and the border of both, the canvas and the peaces of snake. 
 
 let changing_direction = false;
+let score = 0;
 let dx = 10;
 let dy = 0;
+let food_x;
+let food_y;
 // I assign these coordinates to add on to the snake as a head when it needs to grow.
 
 // With this function I create a clean canvas and I'm using its JS API to give its background and it's border so I am able to keep doing it whenever I call the function
@@ -68,7 +71,15 @@ function moveSnake() {
         y: snake[0].y + dy
     }
     snake.unshift(head);
-    snake.pop();
+    const has_eaten_food = snake[0].x === food_x && snake[0].y === food_y;
+    if (has_eaten_food) {
+        score += 10;
+        document.getElementById('score').innerHTML = score;
+        gen_food();
+    } else {
+        snake.pop();
+    }
+
 }
 /* The loop starts targeting the 5th element of the snake
  because with its head the snake cannot "touch" the other ones
@@ -89,6 +100,32 @@ function has_game_ended() {
 
     return hitLeftWall || hitRightWall || hitTopWall || hitBottomWall
 
+}
+// random_food actually generates a random coordinate within provided limits
+function random_food(min, max) {
+    return Math.round((Math.random() * (max - min) + min) / 10) * 10;
+}
+/* gen_food generates the food 
+using the random coordinates from the function above it
+But then checks if the product of that
+ would collide with any of the snake's squares
+*/
+function gen_food() {
+    food_x = random_food(0, snakeboard.width - 10);
+    food_y = random_food(0, snakeboard.height - 10);
+
+    snake.forEach(function has_snake_eaten_food(part) {
+        const has_eaten = part.x === food_x && part.y === food_y;
+        if (has_eaten) gen_food()
+    });
+}
+gen_food();
+
+function drawFood() {
+    snakeboard_cxt.fillStyle = 'lightgreen';
+    snakeboard_cxt.strokestyle = 'darkgreen';
+    snakeboard_cxt.fillRect(food_x, food_y, 10, 10);
+    snakeboard_cxt.strokeRect(food_x, food_y, 10, 10);
 }
 
 function change_direction(event) {
@@ -135,6 +172,7 @@ function main() {
     changing_direction = false;
     setTimeout(function onTick() {
         clearCanvas();
+        drawFood();
         moveSnake();
         drawSnake();
         // call main again so to keep being called by itself forever or until the game ends - a condition I'll write later;
